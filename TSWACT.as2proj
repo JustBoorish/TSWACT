@@ -16,8 +16,7 @@
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="." />
-    <class path="..\..\..\FlashLibs" />
-    <class path="..\..\..\UDK\Flash\AS2\CLIK" />
+    <class path="..\FlashLibs" />
   </classpaths>
   <!-- Build options -->
   <build>

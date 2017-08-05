@@ -33,7 +33,6 @@ class com.tswact.Controller extends MovieClip
 	private var m_combatEnd:Date;
 	private var m_abilityPos:Number;
 	private var m_abilityId:Number;
-	private var m_IsMPRActivated:DistributedValue;
 	private var m_configWindow:ConfigWindow;
 	
 	//On Load
@@ -48,7 +47,6 @@ class com.tswact.Controller extends MovieClip
 		m_evadeCounter = 0;
 		setTimeout(Delegate.create(this, DelayedStart), 1000);
 
-		m_IsMPRActivated = DistributedValue.Create("MPRActivated");
 		DebugWindow.Log("TSWACT OnLoad");
 	}
 

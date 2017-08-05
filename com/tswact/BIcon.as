@@ -185,13 +185,17 @@ class com.tswact.BIcon
 		{
 			parent = _root["tswact\\tswact"]["Icon"];
 		}
+		else if (_root["tswact\\tswact"]["ACTIcon"] != null)
+		{
+			parent = _root["tswact\\tswact"]["ACTIcon"];
+		}
 		if (parent == null)
 		{
 			return;
 		}
 		
 		m_highlight = parent.createEmptyMovieClip("Highlight", parent.getNextHighestDepth());
-		m_highlight.lineStyle(2, 0xFF0000, 100, true, "none", "square", "round");
+		m_highlight.lineStyle(1, 0xFF0000, 100, true, "none", "square", "round");
 		m_highlight.moveTo(0, 0);
 		m_highlight.lineTo(32, 0);
 		m_highlight.lineTo(32, 32);
