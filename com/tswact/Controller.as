@@ -94,9 +94,6 @@ class com.tswact.Controller extends MovieClip
 		m_team = new TeamInfo();
 		m_team.SignalToggleCombat.Connect(onCombatChanged, this);	
 		
-		// Disable evade functionality, as they finally fixed the combat log
-		//com.Utils.GlobalSignal.SignalDamageNumberInfo.Connect(SlotDamageInfo, this);
-		
 		WaypointInterface.SignalPlayfieldChanged.Connect(WaypointChanged, this);
 		m_character.SignalCharacterAlive.Connect(WaypointChanged, this);
 		m_character.SignalCharacterTeleported.Connect(WaypointChanged, this);
@@ -209,44 +206,6 @@ class com.tswact.Controller extends MovieClip
 		}
 		
 		return "|" + ret + "|";
-	}
-	
-	private function SlotDamageInfo(statID:Number, damage:Number, absorb:Number, 
-			attackResultType:Number, 
-			attackType:Number,  
-			attackOffensiveLevel:Number, 
-			attackDefensiveLevel:Number, 
-			context:Number, 
-			targetID:ID32, 
-			iconID:ID32, 
-			iconColorLine:Number, 
-			combatLogFeedbackType:Number):Void
-	{
-		if (attackResultType == _global.Enums.AttackResultType.e_AttackType_Evade)
-		{
-			var attacker:String;
-			var victim:String;
-			if (context == _global.Enums.InfoContext.e_ToPlayer)
-			{
-				attacker = "TSW_Unknown";
-				victim = m_character.GetName();
-				m_evadeCounter++;
-				Log.Error("TSWACT - Evade", "|" + attacker + "|" + victim + "|to " + m_evadeCounter);
-			}
-			else if (context == _global.Enums.InfoContext.e_FromPlayer)
-			{
-				attacker = m_character.GetName();
-				victim = "TSW_Unknown";
-				var targetCharacter:Character = Character.GetCharacter(targetID);
-				if (targetCharacter != null)
-				{
-					victim = targetCharacter.GetName();
-				}
-				
-				m_evadeCounter++;
-				Log.Error("TSWACT - Evade", "|" + attacker + "|" + victim + "|from " + m_evadeCounter);
-			}			
-		}
 	}
 	
 	private function WaypointChanged():Void
