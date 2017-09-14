@@ -4,6 +4,7 @@ import com.GameInterface.Tooltip.TooltipData;
 import com.GameInterface.Tooltip.TooltipInterface;
 import com.GameInterface.Tooltip.TooltipManager;
 import com.tswact.DebugWindow;
+import com.tswact.IntervalCounter;
 import mx.utils.Delegate;
 
 /**
@@ -34,8 +35,7 @@ class com.tswact.BIcon
 	private var m_VTIOIsLoadedMonitor:DistributedValue;
 
 	// Variables for checking if the compass is there
-	private var m_CompassCheckTimerID:Number;
-	private var m_CompassCheckTimerCount:Number = 0;
+	private var m_CompassCheckTimer:IntervalCounter;
 
 	// The add-on information string, separated into 5 segments.
 	// First is the add-on name as it will appear in the Add-on Manager list.
@@ -96,7 +96,15 @@ class com.tswact.BIcon
 		m_icon.onRollOut = Delegate.create(this, onRollout);
 		m_icon.onMousePress = Delegate.create(this, onMousePress);
 		
-		m_CompassCheckTimerID = setInterval(Delegate.create(this, PositionIcon), 100);
+		if (m_x == -1 || m_y == -1)
+		{
+			m_CompassCheckTimer = new IntervalCounter("IconPosition", IntervalCounter.WAIT_MILLIS, IntervalCounter.MAX_ITERATIONS, Delegate.create(this, PositionIcon), Delegate.create(this, PositionOnCompassMissing), null, IntervalCounter.COMPLETE_ON_ERROR);
+		}
+		else
+		{
+			m_icon._x = m_x;
+			m_icon._y = m_y;
+		}
 
 		// Check if VTIO is loaded (if it loaded before this add-on was).
 		SlotCheckVTIOIsLoaded();
@@ -234,33 +242,40 @@ class com.tswact.BIcon
 	}
 
 	// The compass check function.
-	private function PositionIcon():Void
+	// The compass check function.
+	private function PositionIcon():Boolean
 	{
-		if (m_x != -1 && m_y != -1)
+		var finish:Boolean = false;
+		if (m_dragging == true)
 		{
-			clearInterval(m_CompassCheckTimerID);
-			m_icon._x = m_x;
-			m_icon._y = m_y;
+			finish = true;
 		}
 		else
 		{
-			m_CompassCheckTimerCount++;
-			if (m_dragging == true || m_CompassCheckTimerCount > 256)
-			{
-				clearInterval(m_CompassCheckTimerID);
-			}
-			
 			if (_root.compass != undefined && _root.compass._x != undefined && _root.compass._x > 0) {
 				var myPoint:Object = new Object();
 				myPoint.x = _root.compass._x - 270;
 				myPoint.y = _root.compass._y + 0;
 				_root.localToGlobal(myPoint);
-				_root.tswact.globalToLocal(myPoint);
+				_root.boobuilds.globalToLocal(myPoint);
 				m_icon._x = myPoint.x;
 				m_icon._y = myPoint.y;
+				finish = true;
 			}
 		}
+		
+		return finish;
 	}
+	
+	private function PositionOnCompassMissing(isError:Boolean):Void
+	{
+		if (isError == true)
+		{
+			m_icon._x = Stage.width / 4 + 30;
+			m_icon._y = 2;
+		}
+	}
+
 
 	// The function that checks if VTIO is actually loaded and if it is sends the add-on information defined earlier.
 	// This function will also get called if VTIO loads after your add-on. Make sure not to remove the check for seeing if the value is actually true.

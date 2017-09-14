@@ -46,6 +46,7 @@
     <compile path="com\tswact\Graphics.as" />
     <compile path="com\tswact\Checkbox.as" />
     <compile path="com\tswact\ConfigWindow.as" />
+    <compile path="com\tswact\IntervalCounter.as" />
   </compileTargets>
   <!-- Assets to embed into the output SWF -->
   <library>
