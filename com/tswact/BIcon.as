@@ -22,6 +22,7 @@ class com.tswact.BIcon
 	private var m_tooltip:TooltipInterface;
 	private var m_toggleVisibleFunc:Function;
 	private var m_rightToggleVisibleFunc:Function;
+	private var m_ctrlToggleVisibleFunc:Function;
 	private var m_version:String;
 	private var m_showConfig:Boolean;
 	private var m_duration:String;
@@ -45,7 +46,7 @@ class com.tswact.BIcon
 	// Fifth is the path to your icon as seen in-game using Ctrl + Shift + F2 (the debug window). Can be undefined if you have no icon (this also means your add-on won't be slotable).
 	private var VTIOAddonInfo_s:String;
 	
-	public function BIcon(parent:MovieClip, icon:MovieClip, version:String, toggleVisibleFunc:Function, rightToggleVisibleFunc:Function, x:Number, y:Number) 
+	public function BIcon(parent:MovieClip, icon:MovieClip, version:String, toggleVisibleFunc:Function, rightToggleVisibleFunc:Function, ctrlToggleVisibleFunc:Function, x:Number, y:Number) 
 	{
 		if (icon == null)
 		{
@@ -56,6 +57,7 @@ class com.tswact.BIcon
 		m_version = version;
 		m_toggleVisibleFunc = toggleVisibleFunc;
 		m_rightToggleVisibleFunc = rightToggleVisibleFunc;
+		m_ctrlToggleVisibleFunc = ctrlToggleVisibleFunc;
 		VTIOAddonInfo_s = "TSWACT|Boorish|" + m_version + "|VTIO_TSWACT|_root.tswact\\tswact.ACTIcon";
 		m_showConfig = true;
 		m_duration = "";
@@ -140,14 +142,21 @@ class com.tswact.BIcon
 		}
 		else if (buttonIndex == 2)
 		{
-			if (Key.isDown(Key.SHIFT) && !m_VTIOIsLoadedMonitor.GetValue())
+			if (Key.isDown(Key.CONTROL))
 			{
-				m_dragging = true;
-				m_icon.startDrag();
+				m_ctrlToggleVisibleFunc();
 			}
 			else
 			{
-				m_rightToggleVisibleFunc();
+				if (Key.isDown(Key.SHIFT) && !m_VTIOIsLoadedMonitor.GetValue())
+				{
+					m_dragging = true;
+					m_icon.startDrag();
+				}
+				else
+				{
+					m_rightToggleVisibleFunc();
+				}
 			}
 		}
 	}

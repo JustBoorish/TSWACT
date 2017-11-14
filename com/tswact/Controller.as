@@ -17,15 +17,16 @@ import mx.utils.Delegate;
 
 class com.tswact.Controller extends MovieClip
 {
-	private static var m_version:String = "3.0";
+	private static var m_version:String = "3.1";
 	private static var Folder:String = "FOLDER";
 	private static var Version:String = "VERSION";
 	private static var Show_Config:String = "SHOW_CONFIG";
 	
-	private var m_character:Character;
+	private var m_debug:DebugWindow;
+	private var m_clientCharacter:Character;
 	private var m_team:TeamInfo;
 	private var m_combatChanged:Boolean;
-	private var m_window:MovieClip;
+	private var m_mc:MovieClip;
 	private var m_evadeCounter:Number;
 	private var m_icon:BIcon;
 	private var m_archive:Archive;
@@ -38,16 +39,14 @@ class com.tswact.Controller extends MovieClip
 	//On Load
 	private function onLoad():Void
 	{
-		m_window = this;
-		m_window._visible = true;
+		m_mc = this;
+		m_mc._visible = true;
 		
 		_root["tswact\\tswact"].OnModuleActivated = Delegate.create(this, OnModuleActivated);
 		_root["tswact\\tswact"].OnModuleDeactivated = Delegate.create(this, OnModuleDeactivated);
 
 		m_evadeCounter = 0;
 		setTimeout(Delegate.create(this, DelayedStart), 1000);
-
-		DebugWindow.Log("TSWACT OnLoad");
 	}
 
 	function OnModuleActivated(config:Archive):Void
@@ -63,7 +62,7 @@ class com.tswact.Controller extends MovieClip
 		
 		if (m_icon == null)
 		{
-			m_icon = new BIcon(m_window, _root["tswact\\tswact"].ACTIcon, m_version, Delegate.create(this, ShowBrowser), Delegate.create(this, ShowConfig), m_archive.FindEntry(BIcon.ICON_X, -1), m_archive.FindEntry(BIcon.ICON_Y, -1));
+			m_icon = new BIcon(m_mc, _root["tswact\\tswact"].ACTIcon, m_version, Delegate.create(this, ShowBrowser), Delegate.create(this, ShowConfig), Delegate.create(this, ToggleDebug), m_archive.FindEntry(BIcon.ICON_X, -1), m_archive.FindEntry(BIcon.ICON_Y, -1));
 		}
 		
 		//DebugWindow.Log("TSWACT OnModuleActivated: " + m_archive.toString());
@@ -87,17 +86,26 @@ class com.tswact.Controller extends MovieClip
 	private function DelayedStart():Void
 	{
 		m_combatChanged = false;
-		m_character = Character.GetClientCharacter();
+		m_clientCharacter = Character.GetClientCharacter();
 
-		Log.Error("TSWACT", "TSWACT Loaded for |" + m_character.GetName() + "|");
+		if (m_debug == null)
+		{
+			if (m_clientCharacter != null && (m_clientCharacter.GetName() == "Boorish" || m_clientCharacter.GetName() == "Boor" || m_clientCharacter.GetName() == "BoorGirl"))
+			{
+				m_debug = DebugWindow.GetInstance(m_mc, DebugWindow.Debug, "TSWACTDebug");
+			}
+		}
+		
+		Log.Error("TSWACT", "TSWACT Loaded for |" + m_clientCharacter.GetName() + "|");
+		DebugWindow.Log("TSWACT Loaded");
 		
 		m_team = new TeamInfo();
 		m_team.SignalToggleCombat.Connect(onCombatChanged, this);	
 		
 		WaypointInterface.SignalPlayfieldChanged.Connect(WaypointChanged, this);
-		m_character.SignalCharacterAlive.Connect(WaypointChanged, this);
-		m_character.SignalCharacterTeleported.Connect(WaypointChanged, this);
-		m_character.SignalCharacterRevived.Connect(WaypointChanged, this);
+		m_clientCharacter.SignalCharacterAlive.Connect(WaypointChanged, this);
+		m_clientCharacter.SignalCharacterTeleported.Connect(WaypointChanged, this);
+		m_clientCharacter.SignalCharacterRevived.Connect(WaypointChanged, this);
 		WaypointChanged();
 	}
 	
@@ -116,19 +124,19 @@ class com.tswact.Controller extends MovieClip
 			m_combatEnd = null;
 			
 			var nameList:Array = new Array();
-			nameList.push(m_character.GetName());
+			nameList.push(m_clientCharacter.GetName());
 			LogGroupEntry(inCombat, nameList);
 		}
 		else
 		{
-			if (TeamInterface.IsInRaid(m_character.GetID()) || TeamInterface.IsInTeam(m_character.GetID()))
+			if (TeamInterface.IsInRaid(m_clientCharacter.GetID()) || TeamInterface.IsInTeam(m_clientCharacter.GetID()))
 			{
 				LogGroupEntry(inCombat, m_team.GetGroupList());
 			}
 			else
 			{
 				var nameList:Array = new Array();
-				nameList.push(m_character.GetName());
+				nameList.push(m_clientCharacter.GetName());
 				LogGroupEntry(inCombat, nameList);
 			}
 			
@@ -210,7 +218,7 @@ class com.tswact.Controller extends MovieClip
 	
 	private function WaypointChanged():Void
 	{
-		var playfield:Number = m_character.GetPlayfieldID();
+		var playfield:Number = m_clientCharacter.GetPlayfieldID();
 		if (playfield == null)
 		{
 			playfield = 0;
@@ -284,7 +292,7 @@ class com.tswact.Controller extends MovieClip
 
 		var w:Number = 425;
 		var h:Number = 260;
-		m_configWindow = new ConfigWindow(this.m_window, "TSWACT Configuration", Stage.width / 2 - w / 2, Stage.height / 2 - h / 2, w, Delegate.create(this, HideConfig), "ACTHelp", m_archive);
+		m_configWindow = new ConfigWindow(this.m_mc, "TSWACT Configuration", Stage.width / 2 - w / 2, Stage.height / 2 - h / 2, w, Delegate.create(this, HideConfig), "ACTHelp", m_archive);
 		m_configWindow.SetVisible(true);
 	}
 	
@@ -298,12 +306,17 @@ class com.tswact.Controller extends MovieClip
 		}
 	}
 	
+	private function ToggleDebug():Void
+	{
+		DebugWindow.ToggleVisible();
+	}
+	
 	private function GetBuffString():String
 	{
 		var ret:String = "Buffs";
-		for(var prop in m_character.m_BuffList)
+		for(var prop in m_clientCharacter.m_BuffList)
 		{
-			var buffData:BuffData = BuffData(m_character.m_BuffList[prop]);
+			var buffData:BuffData = BuffData(m_clientCharacter.m_BuffList[prop]);
 			ret = ret + ":" + Trim(buffData.m_Name);
 		}
 

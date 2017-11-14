@@ -5,7 +5,6 @@ import com.Utils.Archive;
 import com.Utils.Text;
 import com.GameInterface.DistributedValue;
 import caurina.transitions.Tweener;
-import org.sitedaniel.utils.Proxy;
 import mx.utils.Delegate;
 /**
  * There is no copyright on this code
@@ -158,8 +157,8 @@ class com.tswact.ConfigWindow
 		dragWindow.lineTo(0, radius);
 		dragWindow.curveTo(0, 0, radius, 0);
 		dragWindow.endFill();
-		dragWindow.onPress = Proxy.create(this, function() { configWindow.startDrag(); } );
-		dragWindow.onRelease = Proxy.create(this, function() { configWindow.stopDrag(); } );
+		dragWindow.onPress = Delegate.create(this, function() { configWindow.startDrag(); } );
+		dragWindow.onRelease = Delegate.create(this, function() { configWindow.stopDrag(); } );
 		
 		var buttonRadius:Number = 6.5;
 		var buttonBack:MovieClip = configWindow.createEmptyMovieClip(m_name + "ButtonBack", configWindow.getNextHighestDepth());
@@ -171,9 +170,9 @@ class com.tswact.ConfigWindow
 		Graphics.DrawFilledCircle(buttonHover, buttonRadius, 0, 0, 0xFE2E2E, 80);
 		buttonHover._alpha = 0;
 		
-		buttonBack.onRollOver = Proxy.create(this, function() { buttonHover._alpha = 0; Tweener.addTween(buttonHover, { _alpha:60, time:0.5, transition:"linear" } ); } );
-		buttonBack.onRollOut = Proxy.create(this, function() { Tweener.removeTweens(buttonHover); buttonHover._alpha = 0; } );
-		buttonBack.onPress = Proxy.create(this, function() { Tweener.removeTweens(buttonHover); buttonHover._alpha = 0; this.SetVisible(false); } );
+		buttonBack.onRollOver = Delegate.create(this, function() { buttonHover._alpha = 0; Tweener.addTween(buttonHover, { _alpha:60, time:0.5, transition:"linear" } ); } );
+		buttonBack.onRollOut = Delegate.create(this, function() { Tweener.removeTweens(buttonHover); buttonHover._alpha = 0; } );
+		buttonBack.onPress = Delegate.create(this, function() { Tweener.removeTweens(buttonHover); buttonHover._alpha = 0; this.SetVisible(false); } );
 		
 		var crossRadius:Number = 3.5;
 		var cross:MovieClip = buttonBack.createEmptyMovieClip(m_name + "ButtonCross", buttonBack.getNextHighestDepth());
@@ -195,9 +194,9 @@ class com.tswact.ConfigWindow
 			Graphics.DrawFilledCircle(helpHover, 6 / m_helpIcon._xscale * 100, 0, 0, 0x6bcdf0, 80);
 			helpHover._alpha = 0;
 		
-			m_helpIcon.onRollOver = Proxy.create(this, function() { helpHover._alpha = 0; Tweener.addTween(helpHover, { _alpha:60, time:0.5, transition:"linear" } ); } );
-			m_helpIcon.onRollOut = Proxy.create(this, function() { Tweener.removeTweens(helpHover); helpHover._alpha = 0; } );
-			m_helpIcon.onPress = Proxy.create(this, function() { Tweener.removeTweens(helpHover); helpHover._alpha = 0; this.onHelpPress(); } );
+			m_helpIcon.onRollOver = Delegate.create(this, function() { helpHover._alpha = 0; Tweener.addTween(helpHover, { _alpha:60, time:0.5, transition:"linear" } ); } );
+			m_helpIcon.onRollOut = Delegate.create(this, function() { Tweener.removeTweens(helpHover); helpHover._alpha = 0; } );
+			m_helpIcon.onPress = Delegate.create(this, function() { Tweener.removeTweens(helpHover); helpHover._alpha = 0; this.onHelpPress(); } );
 		}
 		
 		var checkSize:Number = 10;

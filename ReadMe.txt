@@ -20,6 +20,9 @@ Delete the TSWACT directory from \Data\Gui\Custom\Flash\
 
 CHANGELOG
 
+Version 3.1
+- Moved to SWL curse site
+
 Version 3.0
 - Removed buff cancelling after config
 - Reduced addon size
